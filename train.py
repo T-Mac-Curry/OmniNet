@@ -287,8 +287,12 @@ if __name__ == '__main__':
     parser.add_argument('--restore_last', help='Restore the latest version of the model.', action='store_true')
     parser.add_argument('--eval_interval', help='Interval after which to evaluate on the test/val set.', default=1000)
     
+    #将之前add_argument()定义的参数进行赋值，并返回相关的namespace。
     args = parser.parse_args()
+#https://cloud.tencent.com/developer/article/1149041，未涉及其他随机处理的话，torch.manual_seed(SEED), torch.cuda.manual_seed(SEED)可以固定pytorch中的随机数
     torch.manual_seed(47)
+#https://blog.csdn.net/u011622208/article/details/91454585, https://zhuanlan.zhihu.com/p/68717029
+#启动进程的方法，父进程会启动一个新的python进程，子进程只会继承运行进程对象run()方法所需的那些资源。特别地，子进程不会继承父进程中不必要的文件描述符和句柄。
     mp.set_start_method('spawn',force=True)
     n_iters = int(args.n_iters)
     n_jobs = int(args.n_jobs)
