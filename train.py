@@ -22,22 +22,24 @@ OmniNet training script.
 """
 import argparse
 import os
-import torch
+import sys
 import time
 import glob
-import numpy as np
-import libs.omninet as omninet
-from libs.utils import dataloaders as dl
+import random
+from tqdm import tqdm
 from tensorboardX import SummaryWriter
+
+import numpy as np
+import torch
 import torch.multiprocessing as mp
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.optim.adam import Adam
+
+import libs.omninet as omninet
+from libs.utils import dataloaders as dl
 import libs.omninet.routines as r
 from libs.omninet.util import ScheduledOptim
-from torch.optim.adam import Adam
-import random
-import sys
-from tqdm import tqdm
 from libs.utils.train_util import *
 
 
