@@ -61,7 +61,7 @@ def train(shared_model, task, batch_size, train_steps, gpu_id, start,  restore, 
     if (log == True):
         summary_writer = SummaryWriter(log_dir)
     # Create local model
-     
+    #再次设置了随机的种子 
     torch.manual_seed(int(random.random() * 1000))
     if gpu_id>0:
         model = omninet.OmniNet(gpu_id=gpu_id)
@@ -108,9 +108,11 @@ def train(shared_model, task, batch_size, train_steps, gpu_id, start,  restore, 
     model=model.train()
 
     for i in range(start, train_steps):
+ #model.zero_grad(), optimizer.zero_grad()， 两种方式都是把模型中参数的梯度设为0， https://zhuanlan.zhihu.com/p/62387047
         model.zero_grad()
         if barrier is not None:
             barrier.wait()
+ #https://zhuanlan.zhihu.com/p/38056115,保存与加载模型
         if gpu_id > 0:
             with torch.cuda.device(gpu_id):
                 model.load_state_dict(shared_model.state_dict())
@@ -329,10 +331,12 @@ if __name__ == '__main__':
         
     shared_model=shared_model.to(0)
     shared_model.share_memory()
+#Counter：自动生成一个字符串的统计字典， https://www.cnblogs.com/pinsily/p/7906107.html
     counters = [Counter(restore) for i in range(len(tasks))]
+   #同步进程
     barrier = mp.Barrier(n_tasks)
     start = int(restore / n_jobs)
-    # Declare training processes for multi-gpu hogwild training
+    # Declare training processes for multi-gpu hogwild training, 异步随机梯度下降方法
     processes = []
     for i in range(n_tasks):
         #If more than one GPU is used, use first GPU only for model sharing
