@@ -22,6 +22,7 @@ Dataloaders for standard datasets used in the paper
 """
 import os
 import torch
+#序列化，对象持久性
 import pickle
 import cv2
 import numpy as np
@@ -30,6 +31,7 @@ import tqdm
 import random
 from sklearn.model_selection import train_test_split
 from PIL import Image
+#BPEmb is a collection of pre-trained subword embeddings in 275 languages，https://github.com/bheinzerling/bpemb
 from bpemb import BPEmb
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -101,7 +103,7 @@ class VideoDataset(Dataset):
 
     def __len__(self):
         return len(self.fnames)
-
+#如果在类中定义了__getitem__()方法，那么他的实例对象（假设为P）就可以这样P[key]取值。当实例对象做P[key]运算时，就会调用类中的__getitem__()方法。
     def __getitem__(self, index):
         buffer = self.load_frames(self.fnames[index])
         buffer = self.crop(buffer, self.clip_len, self.crop_size)
@@ -202,10 +204,11 @@ class VideoDataset(Dataset):
     
     def to_tensor(self, buffer):
         return buffer.transpose((0, 3, 1, 2))
-    
+    # 时间上随机，空间上crop随机
     def crop(self, buffer, clip_len, crop_size):
         # randomly select time index for temporal jittering
         if buffer.shape[0] - clip_len>0 and self.split=='train':
+            #np.random.randint：前闭后开；random.randint：前闭后闭
             time_index = np.random.randint(buffer.shape[0] - clip_len)
         else:
             time_index=0
